@@ -1,70 +1,93 @@
-correct = False
-f = open("hangman_word.txt",'r')
 
-letter_list = []
-already_guesses = []
 
-for word in f:
-    for letters in word:
-        letters = letters.lower()
-        if letters == '!' or letters == '.' or letters == ',' or letters == '\'' or letters == '-' or letters == '?' or letters == " ":
-            pass
-        else:
-            letter_list.append(letters)
 
-def showing():
-    og_word = None
-    f = open("hangman_word.txt", 'r')
-    for word in f:
-        og_word = word
-        og_word = og_word.lower()
-        word = word.lower()
-        for letters in word:
-            if letters not in already_guesses:
-                if letters == '!' or letters == '.' or letters == ',' or letters == '\'' or letters == '-' or letters == " ":
+
+class Hangman(object):
+    def __init__(self):
+        self.correct = False
+        self.f = open("hangman_word.txt", 'r')
+        self.letter_list = []
+        self.already_guesses = []
+        self.guesses = 5
+        for word in self.f:
+            for letters in word:
+                letters = letters.lower()
+                if letters == '!' or letters == '.' or letters == ',' or letters == '\'' or letters == '-' or letters == '?' or letters == " ":
                     pass
                 else:
-                    og_word = og_word.replace(f'{letters}','_')
+                    self.letter_list.append(letters)
 
-    print(og_word)
+    def showing(self):
+        og_word = None
+        f = open("hangman_word.txt", 'r')
+        for word in f:
+            og_word = word
+            og_word = og_word.lower()
+            word = word.lower()
+            for letters in word:
+                if letters not in self.already_guesses:
+                    if letters == '!' or letters == '.' or letters == ',' or letters == '\'' or letters == '-' or letters == " ":
+                        pass
+                    else:
+                        og_word = og_word.replace(f'{letters}','_')
 
-guesses = 5
-while correct != True:
+        print(og_word)
+
+    def already_guessed(self,ans) -> bool:
+        if ans in self.already_guesses:
+            return True
+        return False
+
+    def add_to_guessed(self,ans):
+        self.already_guesses.append(ans)
+
+    def is_guess_correct(self, ans) -> bool:
+        if ans in self.letter_list:
+            self.already_guesses.append(f'{ans}')
+            return True
+        return False
+
+    def all_letters_right(self):
+        for letters in self.letter_list:
+            if letters in self.already_guesses:
+                    continue
+            else:
+                return False
+        return True
+
+    def get_guesses(self):
+        return self.guesses
+
+    def minus_a_try(self):
+        self.guesses -= 1
+
+    def did_user_lose(self) -> bool:
+        if self.guesses == 0:
+            words = None
+            for word in self.f:
+                words = word
+            print(f'The word was {words}')
+        return self.guesses == 0
+
+
+hangman = Hangman()
+while(True):
+    hangman.showing()
     ans = input('What is your guess? ')
     ans = ans.lower()
-    if ans in letter_list:
-        if ans in already_guesses:
-            print('You have already guessed this letter.')
-            showing()
-        else:
-            print('You got the letter correct')
-            already_guesses.append(f'{ans}')
-            showing()
-            all_right = True
-            for letters in letter_list:
-                if letters in already_guesses:
-                        continue
-                else:
-                    all_right = False
-                    break
-            if all_right == True:
-                print('You got the word. Congrats!')
-                break
+    if(hangman.already_guessed(ans)):
+        print("You already guessed this letter.")
     else:
-        if ans in already_guesses:
-            print('You have already guesses this letter.')
-            showing()
+        if(hangman.is_guess_correct(ans)):
+            hangman.add_to_guessed(ans)
+            print("You got the letter correct!")
+            if hangman.all_letters_right():
+                print('YOU WON!')
         else:
-            guesses = guesses - 1
-            if guesses == 0:
-                print('You have lost the game.')
-                words = None
-                for word in f:
-                    words = word
-                print(f'The word was {words}')
+            hangman.add_to_guessed(ans)
+            hangman.minus_a_try()
+            print("You got the letter wrong!")
+            if hangman.did_user_lose():
+                print("You lost!")
                 break
-            else:
-                print(f'That is not correct. You have {guesses} tries left')
-                already_guesses.append(f'{ans}')
-                showing()
 
