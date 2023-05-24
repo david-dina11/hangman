@@ -1,7 +1,3 @@
-
-
-
-
 class Hangman(object):
     def __init__(self):
         self.correct = False
@@ -62,12 +58,12 @@ class Hangman(object):
         self.guesses -= 1
 
     def did_user_lose(self) -> bool:
-        if self.guesses == 0:
+        if self.guesses <= 0:
             words = None
             for word in self.f:
                 words = word
             print(f'The word was {words}')
-        return self.guesses == 0
+        return self.guesses <= 0
 
 
 hangman = Hangman()
@@ -83,6 +79,7 @@ while(True):
             print("You got the letter correct!")
             if hangman.all_letters_right():
                 print('YOU WON!')
+                break
         else:
             hangman.add_to_guessed(ans)
             hangman.minus_a_try()
